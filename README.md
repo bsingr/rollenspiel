@@ -2,6 +2,8 @@
 
 Rails engine for role management for ActiveRecord. Supports scoping and inheritance.
 
+[![Build Status](https://travis-ci.org/bsingr/rollenspiel.svg)](https://travis-ci.org/bsingr/rollenspiel)
+
 ## Requirements
 
   * Rails 4.2
