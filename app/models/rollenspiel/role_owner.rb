@@ -9,6 +9,8 @@ module Rollenspiel
     included do
       RoleOwner.registered_owners << name
 
+      scope :by_ownerships, ->(ownerships) { where(id: ownerships.where(owner_type: name).select(:owner_id)) }
+
       has_many :role_ownerships,
                as: :owner,
                inverse_of: :owner,

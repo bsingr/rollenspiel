@@ -21,9 +21,6 @@ module Rollenspiel
                        inverse_of: :scope,
                        dependent: :destroy,
                        class_name: 'Rollenspiel::Role'
-      has_many :inherited_roles, through: :roles,
-                                 class_name: 'Rollenspiel::Role'
-
       after_create :create_roles_structure
 
       # @param [#to_s] role_name
@@ -31,6 +28,28 @@ module Rollenspiel
       def role role_name
         roles.find_by_name(role_name)
       end
+
+      # @param [#to_s] role_name
+      # @return [Array<Rollenspiel::RoleOwner>] role_owners
+      def owners_of_role role_name
+        owners_by_roles roles.where(name: role_name)
+      end
+
+      # @param [#to_s] role_name
+      # @return [Array<Rollenspiel::RoleOwner>] role_owners
+      def indirect_owners_of_role role_name
+        inheritances = RoleInheritance.where(inherited_role: roles.where(name: role_name))
+        owners_by_roles inheritances.select(:role_id)
+      end
+
+      private
+
+        def owners_by_roles roles
+          ownerships = RoleOwnership.where(role: roles)
+          RoleOwner.registered_owners.map do |owner_model|
+            owner_model.constantize.by_ownerships(ownerships)
+          end.flatten
+        end
     end
 
     def create_roles_structure
