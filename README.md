@@ -4,6 +4,7 @@ Rails engine for role management for ActiveRecord. Supports scoping and inherita
 
 [![Build Status](https://travis-ci.org/bsingr/rollenspiel.svg)](https://travis-ci.org/bsingr/rollenspiel)
 [![Code Climate](https://codeclimate.com/github/bsingr/rollenspiel/badges/gpa.svg)](https://codeclimate.com/github/bsingr/rollenspiel)
+[![Test Coverage](https://codeclimate.com/github/bsingr/rollenspiel/badges/coverage.svg)](https://codeclimate.com/github/bsingr/rollenspiel)
 
 ## Requirements
 
