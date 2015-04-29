@@ -5,3 +5,15 @@ rvm:
   - 2.2.0
   - jruby-19mode
   - rbx-2.1.1
+env:
+  - DB=sqlite
+  - DB=mysql
+  - DB=postgresql
+script:
+  - cd test
+  - RAILS_ENV=test bundle exec rake db:migrate --trace
+  - bundle exec rake
+before_script:
+  - mysql -e 'create database my_app_test'
+  - psql -c 'create database my_app_test' -U postgres
+bundler_args: --binstubs=./bundler_stubs
