@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Jens Bissinger"]
   s.email       = ["mail@jens-bissinger.de"]
   s.homepage    = "https://github.com/bsingr/rollenspiel"
-  s.summary     = "Role management for ActiveRecord 4. Supports scoping and inheritance."
-  s.description = "Role management for ActiveRecord 4. Supports scoping and inheritance."
+  s.summary     = "Role management for Rails 4.2 / ActiveRecord. Supports scoping and inheritance."
+  s.description = "Role management for Rails 4.2 / ActiveRecord. Supports scoping and inheritance."
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
