@@ -1,5 +1,7 @@
 # Rollenspiel
 
+Rails engine for role management for ActiveRecord. Supports scoping and inheritance.
+
 ## Requirements
 
   * Rails 4.2
