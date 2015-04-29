@@ -25,32 +25,37 @@ And install the migrations
 
 For some examples please have a look into [test/dummy/app/models](test/dummy/app/models).
 
-You can create simple, unscoped roles like so
+### Create roles
 
 ```ruby
 manager_role = Role.create name: :manager
 ```
 
-Roles can be granted to role owners
+### Define role owners
 
 ```ruby
-# first, define a role owner model
 class YourUser < ActiveRecord::Base
   # this makes your user model an owner of roles
   include ::Rollenspiel::RoleOwner
 end
+```
 
-# then grant a role to a new role owner
+### Grant a role to a role owner
+
+```ruby
 user = YourUser.create
 manager_role.grant_to! user
+```
 
-# and query if the role owner has a role
+### Query if a role owner has a role
+
+```ruby
 user.role?(manager_role)    # true
 user.role?(:manager)        # true
 user.role?(:does_not_exist) # false
 ```
 
-Inherit roles
+### Inherit roles
 
 ```ruby
 read_role = Role.create name: :read
@@ -59,10 +64,9 @@ manager_role.inherit! read_role
 user.role?(read_role) # true
 ```
 
-Scoped roles
+### Define a scope for roles
 
 ```ruby
-
 class YourResource < ActiveRecord::Base
   # this makes your resource a scope to be used in roles
   include ::Rollenspiel::RoleScope
@@ -84,7 +88,11 @@ class YourResource < ActiveRecord::Base
     builder.role manager_role, inherits: [:use, :sell]
   end
 end
+```
 
+### Grant scoped roles
+
+```ruby
 car = Resource.create name: "Car"
 bike = Resource.create name: "Bike"
 
@@ -100,7 +108,7 @@ user.role?(:sell, YourResource) # true
 user.role?(:sell, YourUser)     # false
 ```
 
-query for role owners
+### Query for role owners
 
 ```ruby
 resource.owners_of_role(:manager)
