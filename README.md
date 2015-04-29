@@ -25,12 +25,15 @@ And install the migrations
 
 For some examples please have a look into [test/dummy/app/models](test/dummy/app/models).
 
+You can create simple, unscoped roles like so
+
 ```ruby
-# 1) you can create simple, unscoped roles like so
 manager_role = Role.create name: :manager
+```
 
-# 2) roles can be granted to role owners
+Roles can be granted to role owners
 
+```ruby
 # first, define a role owner model
 class YourUser < ActiveRecord::Base
   # this makes your user model an owner of roles
@@ -45,14 +48,20 @@ manager_role.grant_to! user
 user.role?(manager_role)    # true
 user.role?(:manager)        # true
 user.role?(:does_not_exist) # false
+```
 
-# 3) inherit roles
+Inherit roles
 
-...
+```ruby
+read_role = Role.create name: :read
+manager_role.inherit! read_role
 
-# 4) scoped roles
+user.role?(read_role) # true
+```
 
-...
+Scoped roles
+
+```ruby
 
 class YourResource < ActiveRecord::Base
   # this makes your resource a scope to be used in roles
@@ -63,26 +72,39 @@ class YourResource < ActiveRecord::Base
   define_roles do |builder, record|
 
     # this is a simple read role
-    builder.role :read
+    builder.role :use
 
     # you can add multiple roles at once
-    builder.role :read, :write
+    builder.role :use, :sell
 
     # and you can group roles together (single level inheritance)
-    builder.role :manager, inherits: [:read, :write]
+    builder.role :owner, inherits: [:use, :sell]
 
     # you can even re-use existing roles to inherit new roles
-    builder.role Role.find(:manager), inherits: [:read, :write]
+    builder.role manager_role, inherits: [:use, :sell]
   end
 end
 
-# 5) inherited + scopes roles
+car = Resource.create name: "Car"
+bike = Resource.create name: "Bike"
 
-...
+car.role(:owner).grant_to! user
+bike.role(:use).grant_to! user
 
-# 6) query for role owners
+user.role?(car.role(:owner))    # true
+user.role?(car.role(:use))      # true
+user.role?(bike.role(:owner))   # false
+user.role?(bike.role(:use))     # true
+user.role?(:sell)               # true
+user.role?(:sell, YourResource) # true
+user.role?(:sell, YourUser)     # false
+```
 
-...
+query for role owners
+
+```ruby
+resource.owners_of_role(:manager)
+resource.indirect_owners_of_role(:read)
 ```
 
 

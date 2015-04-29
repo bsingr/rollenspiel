@@ -51,5 +51,12 @@ module Rollenspiel
     def inherit role
       role_inheritances.build inherited_role: role
     end
+
+    # Creates inheritance for the given role
+    # @param [Rollenspiel::Role] role
+    # @return [Rollenspiel::RoleInheritance] role_inheritance
+    def inherit! role
+      role_inheritances.create! inherited_role: role
+    end
   end
 end
