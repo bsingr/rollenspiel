@@ -23,64 +23,65 @@ And install the migrations
 
 For some examples please have a look into [test/dummy/app/models](test/dummy/app/models).
 
-    # 1) you can create simple, unscoped roles like so
-    manager_role = Role.create name: :manager
+```ruby
+# 1) you can create simple, unscoped roles like so
+manager_role = Role.create name: :manager
 
-    # 2) roles can be granted to role owners
-    
-    # first, define a role owner model
-    class YourUser < ActiveRecord::Base
-      # this makes your user model an owner of roles
-      include ::Rollenspiel::RoleOwner
-    end
+# 2) roles can be granted to role owners
 
-    # then grant a role to a new role owner
-    user = YourUser.create
-    manager_role.grant_to! user
+# first, define a role owner model
+class YourUser < ActiveRecord::Base
+  # this makes your user model an owner of roles
+  include ::Rollenspiel::RoleOwner
+end
 
-    # and query if the role owner has a role
-    user.role?(manager_role)    # true
-    user.role?(:manager)        # true
-    user.role?(:does_not_exist) # false
+# then grant a role to a new role owner
+user = YourUser.create
+manager_role.grant_to! user
 
-    # 3) inherit roles
+# and query if the role owner has a role
+user.role?(manager_role)    # true
+user.role?(:manager)        # true
+user.role?(:does_not_exist) # false
 
-    ...
+# 3) inherit roles
 
-    # 4) scoped roles
+...
 
-    ...
+# 4) scoped roles
 
-    class YourResource < ActiveRecord::Base
-      # this makes your resource a scope to be used in roles
-      include ::Rollenspiel::RoleScope
+...
 
-      # here you can define default roles that get automatically created
-      # whenever a new instance of your resource is created
-      define_roles do |builder, record|
+class YourResource < ActiveRecord::Base
+  # this makes your resource a scope to be used in roles
+  include ::Rollenspiel::RoleScope
 
-        # this is a simple read role
-        builder.role :read
+  # here you can define default roles that get automatically created
+  # whenever a new instance of your resource is created
+  define_roles do |builder, record|
 
-        # you can add multiple roles at once
-        builder.role :read, :write
+    # this is a simple read role
+    builder.role :read
 
-        # and you can group roles together (single level inheritance)
-        builder.role :manager, inherits: [:read, :write]
+    # you can add multiple roles at once
+    builder.role :read, :write
 
-        # you can even re-use existing roles to inherit new roles
-        builder.role Role.find(:manager), inherits: [:read, :write]
-      end
-    end
+    # and you can group roles together (single level inheritance)
+    builder.role :manager, inherits: [:read, :write]
 
-    # 5) inherited + scopes roles
+    # you can even re-use existing roles to inherit new roles
+    builder.role Role.find(:manager), inherits: [:read, :write]
+  end
+end
 
-    ...
+# 5) inherited + scopes roles
 
-    # 6) query for role owners
+...
 
-    ...
+# 6) query for role owners
 
+...
+```
 
 
 This project rocks and uses MIT-LICENSE.
