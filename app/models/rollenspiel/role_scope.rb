@@ -17,9 +17,18 @@ module Rollenspiel
 
       RoleScope.registered_scopes << name
 
-      scope :by_role_owner, ->(role_owner) {
+      scope :by_role_owner, ->(role_owner, role_name=nil) {
         ownerships = Rollenspiel::RoleOwnership.where(owner: role_owner)
-        roles = Rollenspiel::Role.where(scope_type: name, id: ownerships.select(:role_id))
+
+        roles = Rollenspiel::Role.where({scope_type: name, id: ownerships.select(:role_id)})
+
+        if role_name
+          inheritances = RoleInheritance.where(inherited_role: Rollenspiel::Role.where(name: role_name))
+          roles = roles.where(
+            Rollenspiel::Role.arel_table[:name].eq(role_name)
+              .or(Rollenspiel::Role.arel_table[:id].in(Arel::Nodes::SqlLiteral.new(inheritances.select(:role_id).to_sql)))
+          )
+        end
         where(id: roles.select(:scope_id))
       }
 

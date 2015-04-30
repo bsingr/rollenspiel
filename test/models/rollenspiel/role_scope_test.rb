@@ -2,6 +2,42 @@ require 'test_helper'
 
 module Rollenspiel
   class RoleScopeTest < ActiveSupport::TestCase
+    test "finds by role owners" do
+      o = TestOrganization.create!
+      u1 = TestUser.create!
+      u2 = TestUser.create!
+      o.role(:leader).grant_to!(u1)
+
+      assert_equal o, TestOrganization.by_role_owner(u1).first
+      assert_equal nil, TestOrganization.by_role_owner(u2).first
+    end
+
+    test "finds by role owners and role_name" do
+      o = TestOrganization.create!
+      u1 = TestUser.create!
+      u2 = TestUser.create!
+      o.role(:leader).grant_to!(u1)
+      o.role(:member).grant_to!(u2)
+
+      assert_equal o, TestOrganization.by_role_owner(u1, :leader).first
+      assert_equal nil, TestOrganization.by_role_owner(u1, :member).first
+      assert_equal nil, TestOrganization.by_role_owner(u2, :leader).first
+      assert_equal o, TestOrganization.by_role_owner(u2, :member).first
+    end
+
+    test "finds by inherited roles of role owners" do
+      o = TestOrganization.create!
+      u1 = TestUser.create!
+      u2 = TestUser.create!
+      o.role(:leader).grant_to!(u1)
+      o.role(:member).grant_to!(u2)
+
+      assert_equal o, TestOrganization.by_role_owner(u1, :read).first
+      assert_equal o, TestOrganization.by_role_owner(u1, :update).first
+      assert_equal o, TestOrganization.by_role_owner(u2, :read).first
+      assert_equal nil, TestOrganization.by_role_owner(u2, :update).first
+    end
+
     test "finds role owners" do
       o = TestOrganization.create!
       u1 = TestUser.create!
