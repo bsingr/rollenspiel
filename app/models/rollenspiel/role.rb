@@ -42,7 +42,10 @@ module Rollenspiel
     # Creates a role ownership for the given owner
     # @param [Rollenspiel::RoleOwner] role_owner
     def grant_to! role_owner
-      grant_to(role_owner).save!
+      o = grant_to(role_owner)
+      o.save!
+    rescue => e
+      p o
     end
 
     # Builds inheritance for the given role

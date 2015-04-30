@@ -17,6 +17,12 @@ module Rollenspiel
 
       RoleScope.registered_scopes << name
 
+      scope :by_role_owner, ->(role_owner) {
+        ownerships = Rollenspiel::RoleOwnership.where(owner: role_owner)
+        roles = Rollenspiel::Role.where(scope_type: name, id: ownerships.select(:role_id))
+        where(id: roles.select(:scope_id))
+      }
+
       has_many :roles, as: :scope,
                        inverse_of: :scope,
                        dependent: :destroy,
@@ -40,6 +46,10 @@ module Rollenspiel
       def indirect_owners_of_role role_name
         inheritances = RoleInheritance.where(inherited_role: roles.where(name: role_name))
         owners_by_roles inheritances.select(:role_id)
+      end
+
+      def owners_of_any_role
+        owners_by_roles roles
       end
 
       private
