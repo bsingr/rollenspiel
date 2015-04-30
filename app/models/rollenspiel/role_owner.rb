@@ -27,6 +27,22 @@ module Rollenspiel
       # @param [#to_s] scope_class
       # @return [TrueClass, FalseClass] true when the role is owned
       def role? role_or_name, scope_class=nil
+        conditions = role_conditions(role_or_name, scope_class)
+        inherited_roles.where(conditions).exists? ||
+          roles.where(conditions).exists?
+      end
+
+      # @param [#to_id, #to_s] role_or_name
+      # @param [#to_s] scope_class
+      # @return [TrueClass, FalseClass] true when the role is owned
+      def actual_role? role_or_name, scope_class=nil
+        conditions = role_conditions(role_or_name, scope_class)
+        roles.where(conditions).exists?
+      end
+
+    private
+
+      def role_conditions role_or_name, scope_class=nil
         conditions = {}
         if role_or_name.respond_to?(:id)
           conditions[:id] = role_or_name.id
@@ -36,8 +52,7 @@ module Rollenspiel
         else
           conditions[:name] = role_or_name
         end
-        inherited_roles.where(conditions).exists? ||
-          roles.where(conditions).exists?
+        conditions
       end
     end
   end
