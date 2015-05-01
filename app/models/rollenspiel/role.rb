@@ -64,6 +64,14 @@ module Rollenspiel
       inherit(role).save!
     end
 
+    # Destroys inheritance for the given role
+    # @param [Rollenspiel::Role] role
+    # @return [Rollenspiel::RoleInheritance] role_inheritance
+    def disinherit! role
+      raise ArgumentError, "Role(#{inspect})#inherit requires role" unless role
+      role_inheritances.find_by(inherited_role: role).destroy!
+    end
+
     def to_s
       "#{self.class}(#{name}, #{provider_type})"
     end
