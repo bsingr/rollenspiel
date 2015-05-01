@@ -22,8 +22,7 @@ module Rollenspiel
         end
       end
 
-      expected_max_time = 0.1
-      expected_max_time = 0.2 if RUBY_VERSION =~ /^1\./
+      expected_max_time = 0.2
 
       assert time < expected_max_time, "expected #{time} < #{expected_max_time}"
     end
