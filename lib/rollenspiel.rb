@@ -8,17 +8,17 @@ module Rollenspiel
       send(:include, Rollenspiel::RoleGrantee)
     end
 
-    def provides_roles_on_instance &block
+    def provides_instance_roles &block
       unless block_given?
-        raise ArgumentError, 'provides_roles_on_instance expects a block with role definitions'
+        raise ArgumentError, 'provides_instance_roles expects a block with role definitions'
       end
       self.send(:include, Rollenspiel::RoleProvider)
       self.instance_roles_structure = block
     end
 
-    def provides_roles_on_class &block
+    def provides_roles &block
       unless block_given?
-        raise ArgumentError, 'provides_roles_on_class expects a block with role definitions'
+        raise ArgumentError, 'provides_roles expects a block with role definitions'
       end
       self.send(:include, Rollenspiel::RoleProvider)
       self.class_roles_structure = block

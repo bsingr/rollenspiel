@@ -72,10 +72,16 @@ user.role?(read_role) # true
 
 ```ruby
 class YourResource < ActiveRecord::Base
-  # this makes your resource a provider of roles
+
+  # this makes your resource class a provider of roles
+  provides_roles do |p|
+    p.role :dealer
+  end
+
+  # alternatively OR additionaly use this to provide roles on instance level
   # here you can define default roles that get automatically created
   # whenever a new instance of your resource is created
-  provides_roles_on_instance do |p, record|
+  provides_instance_roles do |p, record|
     # this is a simple read role
     p.role :use
 
@@ -88,15 +94,21 @@ class YourResource < ActiveRecord::Base
     # you can even re-use existing roles to inherit new roles
     p.role manager_role, inherits: [:use, :sell]
   end
-
-  # alternatively OR additionaly use this to provide roles on class level
-  provides_roles_on_instance do |p|
-    p.role :dealer
-  end
 end
 ```
 
 ### Grant roles provided by provider
+
+On class level
+
+```ruby
+YourResource.role(:dealer).grant_to! user
+
+user.role?(:dealer)               # true
+user.role?(:dealer, YourResource) # true
+```
+
+On instance level
 
 ```ruby
 car = YourResource.create name: "Car"
@@ -104,7 +116,6 @@ bike = YourResource.create name: "Bike"
 
 car.role(:grantee).grant_to! user
 bike.role(:use).grant_to! user
-YourResource.role(:dealer).grant_to! user
 
 user.role?(car.role(:grantee))    # true
 user.role?(car.role(:use))        # true
@@ -113,8 +124,6 @@ user.role?(bike.role(:use))       # true
 user.role?(:sell)                 # true
 user.role?(:sell, YourResource)   # true
 user.role?(:sell, YourUser)       # false
-user.role?(:dealer)               # true
-user.role?(:dealer, YourResource) # true
 ```
 
 ### Query for role grantees
