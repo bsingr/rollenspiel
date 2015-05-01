@@ -40,7 +40,7 @@ manager_role = Role.create name: :manager
 ```ruby
 class YourUser < ActiveRecord::Base
   # this makes your user model an grantee of roles
-  include ::Rollenspiel::RoleGrantee
+  role_grantee
 end
 ```
 
