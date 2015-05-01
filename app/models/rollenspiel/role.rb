@@ -44,22 +44,22 @@ module Rollenspiel
     def grant_to! role_grantee
       o = grant_to(role_grantee)
       o.save!
-    rescue => e
-      p o
+      o
     end
 
     # Builds inheritance for the given role
     # @param [Rollenspiel::Role] role
     # @return [Rollenspiel::RoleInheritance] role_inheritance
     def inherit role
-      role_inheritances.build inherited_role: role
+      raise ArgumentError, "Role(#{inspect})#inherit requires role" unless role
+      role_inheritances.find_or_initialize_by inherited_role: role
     end
 
     # Creates inheritance for the given role
     # @param [Rollenspiel::Role] role
     # @return [Rollenspiel::RoleInheritance] role_inheritance
     def inherit! role
-      role_inheritances.create! inherited_role: role
+      inherit(role).save!
     end
   end
 end
