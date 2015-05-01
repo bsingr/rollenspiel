@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(version: 20150101000000) do
     t.datetime "updated_at",    null: false
   end
 
+  add_index "rollenspiel_roles", ["name"], name: "index_rollenspiel_roles_on_name"
   add_index "rollenspiel_roles", ["provider_type", "provider_id"], name: "index_rollenspiel_roles_on_provider_type_and_provider_id"
 
   create_table "test_departments", force: :cascade do |t|
