@@ -9,7 +9,8 @@ module Rollenspiel
     validates_uniqueness_of :role_id, scope: [:grantee_id, :grantee_type]
     validates_inclusion_of :grantee_type, in: RoleGrantee.registered_grantees
 
-    after_create :run_callbacks
+    after_save :run_callbacks
+    after_destroy :run_callbacks
 
     def run_callbacks
       self.class.callbacks.each do |callback|
