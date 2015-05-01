@@ -17,7 +17,7 @@ module Rollenspiel
         end
 
         def build role_name
-          @record.roles.build name: role_name
+          @record.provided_roles.build name: role_name
         end
       end
 
@@ -39,6 +39,10 @@ module Rollenspiel
           inherits_roles.each do |inherits_role|
             roles_by_key[role_or_name].inherit roles_by_key[inherits_role]
           end
+        end
+        @structure.layout[:callbacks][:on_grant].each do |role_or_name, role_callback|
+          role = roles_by_key[role_or_name]
+          role_callback.scope_to_role(role)
         end
         roles_by_key
       end

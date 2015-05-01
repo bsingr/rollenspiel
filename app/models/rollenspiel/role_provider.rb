@@ -18,6 +18,10 @@ module Rollenspiel
           role_builder = RoleBuilder::ClassRoleBuilder.new(name)
         end
         RoleBuilder.new(structure, role_builder).create
+
+        structure.layout[:callbacks][:on_grant].map do |role_or_name, callback|
+          Rollenspiel::RoleGrant.register_callback callback
+        end
       end
 
       def role role_name
@@ -45,34 +49,33 @@ module Rollenspiel
         end
         where(id: roles.select(:provider_id))
       }
-
-      has_many :roles, as: :provider,
-                       inverse_of: :provider,
-                       dependent: :destroy,
-                       class_name: 'Rollenspiel::Role'
+      has_many :provided_roles, as: :provider,
+                                inverse_of: :provider,
+                                dependent: :destroy,
+                                class_name: 'Rollenspiel::Role'
       after_create :create_roles_structure
 
       # @param [#to_s] role_name
       # @return [Rollenspiel::Role] role
       def role role_name
-        roles.find_by_name(role_name)
+        provided_roles.find_by_name(role_name)
       end
 
       # @param [#to_s] role_name
       # @return [Array<Rollenspiel::RoleGrantee>] role_grantees
       def grantees_of_role role_name
-        grantees_by_roles roles.where(name: role_name)
+        grantees_by_roles provided_roles.where(name: role_name)
       end
 
       # @param [#to_s] role_name
       # @return [Array<Rollenspiel::RoleGrantee>] role_grantees
       def indirect_grantees_of_role role_name
-        inheritances = RoleInheritance.where(inherited_role: roles.where(name: role_name))
+        inheritances = RoleInheritance.where(inherited_role: provided_roles.where(name: role_name))
         grantees_by_roles inheritances.select(:role_id)
       end
 
       def grantees_of_any_role
-        grantees_by_roles roles
+        grantees_by_roles provided_roles
       end
 
       private
