@@ -52,5 +52,23 @@ module Rollenspiel
       assert u.role? d.role(:update)
       assert u.role? d.role(:destroy)
     end
+
+    test "grants class roles" do
+      u = TestUser.create!
+
+      admin_role = Role.create! name: 'admin'
+      department_admin_role = Role.create! name: 'department_admin', scope_type: TestDepartment
+
+      admin_role.grant_to!(u)
+      department_admin_role.grant_to!(u)
+
+      assert u.role? admin_role
+      assert u.role? department_admin_role
+
+      assert u.role? :admin
+      assert u.role? :department_admin
+      assert u.role? :department_admin, TestDepartment
+      assert_not u.role? :department_admin, TestOrganization
+    end
   end
 end
