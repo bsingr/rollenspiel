@@ -1,7 +1,7 @@
 class CreateRollenspiel < ActiveRecord::Migration
   def change
     create_table :rollenspiel_roles do |t|
-      t.string :name
+      t.string :name, index: true
       t.references :provider, polymorphic: true, index: true
 
       t.timestamps null: false
@@ -21,9 +21,8 @@ class CreateRollenspiel < ActiveRecord::Migration
       t.timestamps null: false
     end
 
-    add_foreign_key :rollenspiel_role_inheritances, :rollenspiel_roles
+    add_foreign_key :rollenspiel_role_inheritances, :rollenspiel_roles, column: :role_id
     add_foreign_key :rollenspiel_role_inheritances, :rollenspiel_roles, column: :inherited_role_id
-
-    add_foreign_key :rollenspiel_role_grants, :rollenspiel_roles
+    add_foreign_key :rollenspiel_role_grants, :rollenspiel_roles, column: :role_id
   end
 end
