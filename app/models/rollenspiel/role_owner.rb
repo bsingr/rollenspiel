@@ -40,6 +40,18 @@ module Rollenspiel
         roles.where(conditions).exists?
       end
 
+      # @param [#to_id, #to_s] scope_object_or_class
+      # @return [TrueClass, FalseClass] true when the role is owned in the scope
+      def role_in? scope_object_or_class
+        conditions = {}
+        if scope_object_or_class.respond_to?(:id)
+          conditions[:scope] = scope_object_or_class
+        else
+          conditions[:scope_type] = scope_object_or_class
+        end
+        roles.where(conditions).exists? || inherited_roles.where(conditions).exists?
+      end
+
     private
 
       def role_conditions role_or_name, scope_class=nil

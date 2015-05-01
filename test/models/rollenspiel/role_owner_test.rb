@@ -70,5 +70,42 @@ module Rollenspiel
       assert u.role? :department_admin, TestDepartment
       assert_not u.role? :department_admin, TestOrganization
     end
+
+    test "verifies role in scope class" do
+      u = TestUser.create!
+      department_admin_role = Role.create! name: 'department_admin', scope_type: TestDepartment
+      department_admin_role.grant_to!(u)
+
+      assert_not u.role_in? TestOrganization
+      assert u.role_in? TestDepartment
+    end
+
+    test "verifies role in scope object" do
+      o = TestOrganization.create!
+      d = TestDepartment.create! test_organization: o
+      u = TestUser.create!
+      d.role(:read).grant_to!(u)
+
+      assert_not u.role_in? TestOrganization
+      assert u.role_in? TestDepartment
+
+      assert_not u.role_in? o
+      assert u.role_in? d
+    end
+
+    test "verifies inherited role in scope object" do
+      o = TestOrganization.create!
+      d = TestDepartment.create! test_organization: o
+      u = TestUser.create!
+
+      o.role(:read).inherit!(d.role(:read))
+      o.role(:read).grant_to!(u)
+
+      assert u.role_in? TestOrganization
+      assert u.role_in? TestDepartment
+
+      assert u.role_in? o
+      assert u.role_in? d
+    end
   end
 end
