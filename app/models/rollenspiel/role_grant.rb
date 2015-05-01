@@ -19,7 +19,7 @@ module Rollenspiel
 
     def self.register_callback callback
       @callbacks ||= []
-      @callbacks << callback
+      @callbacks << callback unless @callbacks.find{|c| c == callback}
     end
 
     def self.callbacks
