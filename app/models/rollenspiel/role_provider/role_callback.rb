@@ -23,6 +23,10 @@ module Rollenspiel
       def ==other
         role_name == other.role_name && provider_type == other.provider_type
       end
+
+      def to_s
+        "#{self.class}(#{@role_name}, #{@provider_type})"
+      end
     end
   end
 end

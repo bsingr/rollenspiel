@@ -9,6 +9,7 @@ module Rollenspiel
     included do
       RoleGrantee.registered_grantees << name
 
+      scope :by_role_provider_type, ->(provider_type) { joins(:role_grants).where('rollenspiel_role_grants.role_id': Rollenspiel::Role.by_provider_type(provider_type)).distinct }
       scope :by_grants, ->(grants) { where(id: grants.where(grantee_type: name).select(:grantee_id)) }
 
       has_many :role_grants,

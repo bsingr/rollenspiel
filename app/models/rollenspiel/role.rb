@@ -1,5 +1,7 @@
 module Rollenspiel
   class Role < ActiveRecord::Base
+    scope :by_provider_type, ->(provider_type) { where(provider_type: provider_type) }
+
     belongs_to :provider, polymorphic: true
 
     has_many :role_inheritances, dependent: :destroy,
@@ -60,6 +62,10 @@ module Rollenspiel
     # @return [Rollenspiel::RoleInheritance] role_inheritance
     def inherit! role
       inherit(role).save!
+    end
+
+    def to_s
+      "#{self.class}(#{name}, #{provider_type})"
     end
   end
 end
