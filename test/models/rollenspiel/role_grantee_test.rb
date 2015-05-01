@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Rollenspiel
-  class RoleOwnerTest < ActiveSupport::TestCase
+  class RoleGranteeTest < ActiveSupport::TestCase
     test "grants roles" do
       o = TestOrganization.create!
       u = TestUser.create!
@@ -57,7 +57,7 @@ module Rollenspiel
       u = TestUser.create!
 
       admin_role = Role.create! name: 'admin'
-      department_admin_role = Role.create! name: 'department_admin', scope_type: TestDepartment
+      department_admin_role = Role.create! name: 'department_admin', provider_type: TestDepartment
 
       admin_role.grant_to!(u)
       department_admin_role.grant_to!(u)
@@ -73,7 +73,7 @@ module Rollenspiel
 
     test "verifies role in scope class" do
       u = TestUser.create!
-      department_admin_role = Role.create! name: 'department_admin', scope_type: TestDepartment
+      department_admin_role = Role.create! name: 'department_admin', provider_type: TestDepartment
       department_admin_role.grant_to!(u)
 
       assert_not u.role_in? TestOrganization

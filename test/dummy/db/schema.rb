@@ -11,7 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150101000002) do
+ActiveRecord::Schema.define(version: 20150101000000) do
+
+  create_table "rollenspiel_role_grants", force: :cascade do |t|
+    t.integer  "role_id"
+    t.integer  "grantee_id"
+    t.string   "grantee_type"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "rollenspiel_role_grants", ["grantee_type", "grantee_id"], name: "index_rollenspiel_role_grants_on_grantee_type_and_grantee_id"
+  add_index "rollenspiel_role_grants", ["role_id"], name: "index_rollenspiel_role_grants_on_role_id"
 
   create_table "rollenspiel_role_inheritances", force: :cascade do |t|
     t.integer  "role_id"
@@ -23,26 +34,15 @@ ActiveRecord::Schema.define(version: 20150101000002) do
   add_index "rollenspiel_role_inheritances", ["inherited_role_id"], name: "index_rollenspiel_role_inheritances_on_inherited_role_id"
   add_index "rollenspiel_role_inheritances", ["role_id"], name: "index_rollenspiel_role_inheritances_on_role_id"
 
-  create_table "rollenspiel_role_ownerships", force: :cascade do |t|
-    t.integer  "role_id"
-    t.integer  "owner_id"
-    t.string   "owner_type"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  add_index "rollenspiel_role_ownerships", ["owner_type", "owner_id"], name: "index_rollenspiel_role_ownerships_on_owner_type_and_owner_id"
-  add_index "rollenspiel_role_ownerships", ["role_id"], name: "index_rollenspiel_role_ownerships_on_role_id"
-
   create_table "rollenspiel_roles", force: :cascade do |t|
     t.string   "name"
-    t.integer  "scope_id"
-    t.string   "scope_type"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "provider_id"
+    t.string   "provider_type"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
   end
 
-  add_index "rollenspiel_roles", ["scope_type", "scope_id"], name: "index_rollenspiel_roles_on_scope_type_and_scope_id"
+  add_index "rollenspiel_roles", ["provider_type", "provider_id"], name: "index_rollenspiel_roles_on_provider_type_and_provider_id"
 
   create_table "test_departments", force: :cascade do |t|
     t.string   "name"

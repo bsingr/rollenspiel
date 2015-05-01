@@ -1,44 +1,44 @@
 require 'test_helper'
 
 module Rollenspiel
-  class RoleScopeTest < ActiveSupport::TestCase
-    test "finds by role owners" do
+  class RoleProviderTest < ActiveSupport::TestCase
+    test "finds by role grantees" do
       o = TestOrganization.create!
       u1 = TestUser.create!
       u2 = TestUser.create!
       o.role(:leader).grant_to!(u1)
 
-      assert_equal o, TestOrganization.by_role_owner(u1).first
-      assert_equal nil, TestOrganization.by_role_owner(u2).first
+      assert_equal o, TestOrganization.by_role_grantee(u1).first
+      assert_equal nil, TestOrganization.by_role_grantee(u2).first
     end
 
-    test "finds by role owners and role_name" do
-      o = TestOrganization.create!
-      u1 = TestUser.create!
-      u2 = TestUser.create!
-      o.role(:leader).grant_to!(u1)
-      o.role(:member).grant_to!(u2)
-
-      assert_equal o, TestOrganization.by_role_owner(u1, :leader).first
-      assert_equal nil, TestOrganization.by_role_owner(u1, :member).first
-      assert_equal nil, TestOrganization.by_role_owner(u2, :leader).first
-      assert_equal o, TestOrganization.by_role_owner(u2, :member).first
-    end
-
-    test "finds by inherited roles of role owners" do
+    test "finds by role grantees and role_name" do
       o = TestOrganization.create!
       u1 = TestUser.create!
       u2 = TestUser.create!
       o.role(:leader).grant_to!(u1)
       o.role(:member).grant_to!(u2)
 
-      assert_equal o, TestOrganization.by_role_owner(u1, :read).first
-      assert_equal o, TestOrganization.by_role_owner(u1, :update).first
-      assert_equal o, TestOrganization.by_role_owner(u2, :read).first
-      assert_equal nil, TestOrganization.by_role_owner(u2, :update).first
+      assert_equal o, TestOrganization.by_role_grantee(u1, :leader).first
+      assert_equal nil, TestOrganization.by_role_grantee(u1, :member).first
+      assert_equal nil, TestOrganization.by_role_grantee(u2, :leader).first
+      assert_equal o, TestOrganization.by_role_grantee(u2, :member).first
     end
 
-    test "finds role owners" do
+    test "finds by inherited roles of role grantees" do
+      o = TestOrganization.create!
+      u1 = TestUser.create!
+      u2 = TestUser.create!
+      o.role(:leader).grant_to!(u1)
+      o.role(:member).grant_to!(u2)
+
+      assert_equal o, TestOrganization.by_role_grantee(u1, :read).first
+      assert_equal o, TestOrganization.by_role_grantee(u1, :update).first
+      assert_equal o, TestOrganization.by_role_grantee(u2, :read).first
+      assert_equal nil, TestOrganization.by_role_grantee(u2, :update).first
+    end
+
+    test "finds role grantees" do
       o = TestOrganization.create!
       u1 = TestUser.create!
       u2 = TestUser.create!
@@ -46,23 +46,23 @@ module Rollenspiel
       o.role(:member).grant_to!(u1)
       o.role(:member).grant_to!(u2)
 
-      assert_equal 1, o.owners_of_role(:leader).count
-      assert_equal u1, o.owners_of_role(:leader).first
-      assert_equal 2, o.owners_of_role(:member).count
-      assert_equal u1, o.owners_of_role(:member).first
-      assert_equal u2, o.owners_of_role(:member).last
+      assert_equal 1, o.grantees_of_role(:leader).count
+      assert_equal u1, o.grantees_of_role(:leader).first
+      assert_equal 2, o.grantees_of_role(:member).count
+      assert_equal u1, o.grantees_of_role(:member).first
+      assert_equal u2, o.grantees_of_role(:member).last
     end
 
-    test "finds indirect role owners" do
+    test "finds indirect role grantees" do
       o = TestOrganization.create!
       u = TestUser.create!
       o.role(:leader).grant_to!(u)
 
-      assert_equal 1, o.indirect_owners_of_role(:read).count
-      assert_equal u, o.indirect_owners_of_role(:read).first
+      assert_equal 1, o.indirect_grantees_of_role(:read).count
+      assert_equal u, o.indirect_grantees_of_role(:read).first
     end
 
-    test "finds indirect role owners across scopes" do
+    test "finds indirect role grantees of roles provided by providers" do
       o = TestOrganization.create!
       d = TestDepartment.create! test_organization: o
 
@@ -75,11 +75,11 @@ module Rollenspiel
       assert u1.role?(o.role(:leader))
       assert u1.role?(d.role(:create))
 
-      assert_equal 1, d.indirect_owners_of_role(:create).count
-      assert_equal u1, d.indirect_owners_of_role(:create).first
-      assert_equal 2, d.indirect_owners_of_role(:read).count
-      assert_equal u1, d.indirect_owners_of_role(:read).first
-      assert_equal u2, d.indirect_owners_of_role(:read).last
+      assert_equal 1, d.indirect_grantees_of_role(:create).count
+      assert_equal u1, d.indirect_grantees_of_role(:create).first
+      assert_equal 2, d.indirect_grantees_of_role(:read).count
+      assert_equal u1, d.indirect_grantees_of_role(:read).first
+      assert_equal u2, d.indirect_grantees_of_role(:read).last
     end
 
     test "creates roles" do
@@ -115,7 +115,7 @@ module Rollenspiel
       assert_not o.role(:member).inherited?(o.role(:destroy))
     end
 
-    test "creates inherited roles across scopes" do
+    test "creates inherited roles provided by providers" do
       o = TestOrganization.create!
       d = TestDepartment.create! test_organization: o
 

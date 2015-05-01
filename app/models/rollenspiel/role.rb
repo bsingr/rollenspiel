@@ -1,6 +1,6 @@
 module Rollenspiel
   class Role < ActiveRecord::Base
-    belongs_to :scope, polymorphic: true
+    belongs_to :provider, polymorphic: true
 
     has_many :role_inheritances, dependent: :destroy,
                                  inverse_of: :role
@@ -13,13 +13,13 @@ module Rollenspiel
     has_many :inherited_to_roles, through: :inherited_in_role_inheritances,
                                   source: :inherited_role
 
-    has_many :role_ownerships, inverse_of: :role
-    has_many :owners,
-             through: :role_ownerships
+    has_many :role_grants, inverse_of: :role
+    has_many :grantees,
+             through: :role_grants
 
     validates_presence_of :name
-    validates_uniqueness_of :name, scope: [:scope_id, :scope_type]
-    validates_inclusion_of :scope_type, in: RoleScope.registered_scopes,
+    validates_uniqueness_of :name, scope: [:provider_id, :provider_type]
+    validates_inclusion_of :provider_type, in: RoleProvider.registered_providers,
                                         allow_nil: true
 
     # @param [#to_id, #to_s] role_or_name
@@ -32,17 +32,17 @@ module Rollenspiel
       end
     end
 
-    # Builds role ownership for the given owner
-    # @param [Rollenspiel::RoleOwner] role_owner becomes owner of this role
-    # @return [Rollenspiel::RoleOwnership] role_ownership
-    def grant_to role_owner
-      role_ownerships.build owner: role_owner
+    # Builds role grant for the given grantee
+    # @param [Rollenspiel::RoleGrantee] role_grantee becomes grantee of this role
+    # @return [Rollenspiel::RoleGrant] role_grant
+    def grant_to role_grantee
+      role_grants.build grantee: role_grantee
     end
 
-    # Creates a role ownership for the given owner
-    # @param [Rollenspiel::RoleOwner] role_owner
-    def grant_to! role_owner
-      o = grant_to(role_owner)
+    # Creates a role grant for the given grantee
+    # @param [Rollenspiel::RoleGrantee] role_grantee
+    def grant_to! role_grantee
+      o = grant_to(role_grantee)
       o.save!
     rescue => e
       p o

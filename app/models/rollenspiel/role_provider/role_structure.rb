@@ -1,5 +1,5 @@
 module Rollenspiel
-  module RoleScope
+  module RoleProvider
     class RoleStructure
       def initialize
         @roles = []

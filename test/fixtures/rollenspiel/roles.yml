@@ -2,8 +2,8 @@
 
 one:
   name: MyString
-  scope_id: 
+  provider_id:
 
 two:
   name: MyString
-  scope_id: 
+  provider_id:

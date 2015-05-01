@@ -1,3 +1,3 @@
 class TestUser < ActiveRecord::Base
-  include ::Rollenspiel::RoleOwner
+  include ::Rollenspiel::RoleGrantee
 end

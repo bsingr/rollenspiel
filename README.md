@@ -35,23 +35,23 @@ For some examples please have a look into [test/dummy/app/models](test/dummy/app
 manager_role = Role.create name: :manager
 ```
 
-### Define role owners
+### Define role grantees
 
 ```ruby
 class YourUser < ActiveRecord::Base
-  # this makes your user model an owner of roles
-  include ::Rollenspiel::RoleOwner
+  # this makes your user model an grantee of roles
+  include ::Rollenspiel::RoleGrantee
 end
 ```
 
-### Grant a role to a role owner
+### Grant a role to a role grantee
 
 ```ruby
 user = YourUser.create
 manager_role.grant_to! user
 ```
 
-### Query if a role owner has a role
+### Query if a role grantee has a role
 
 ```ruby
 user.role?(manager_role)    # true
@@ -68,12 +68,12 @@ manager_role.inherit! read_role
 user.role?(read_role) # true
 ```
 
-### Define a scope for roles
+### Define a provider for roles
 
 ```ruby
 class YourResource < ActiveRecord::Base
-  # this makes your resource a scope to be used in roles
-  include ::Rollenspiel::RoleScope
+  # this makes your resource a provider of roles
+  include ::Rollenspiel::RoleProvider
 
   # here you can define default roles that get automatically created
   # whenever a new instance of your resource is created
@@ -86,7 +86,7 @@ class YourResource < ActiveRecord::Base
     builder.role :use, :sell
 
     # and you can group roles together (single level inheritance)
-    builder.role :owner, inherits: [:use, :sell]
+    builder.role :grantee, inherits: [:use, :sell]
 
     # you can even re-use existing roles to inherit new roles
     builder.role manager_role, inherits: [:use, :sell]
@@ -94,29 +94,29 @@ class YourResource < ActiveRecord::Base
 end
 ```
 
-### Grant scoped roles
+### Grant roles provided by provider
 
 ```ruby
 car = Resource.create name: "Car"
 bike = Resource.create name: "Bike"
 
-car.role(:owner).grant_to! user
+car.role(:grantee).grant_to! user
 bike.role(:use).grant_to! user
 
-user.role?(car.role(:owner))    # true
+user.role?(car.role(:grantee))    # true
 user.role?(car.role(:use))      # true
-user.role?(bike.role(:owner))   # false
+user.role?(bike.role(:grantee))   # false
 user.role?(bike.role(:use))     # true
 user.role?(:sell)               # true
 user.role?(:sell, YourResource) # true
 user.role?(:sell, YourUser)     # false
 ```
 
-### Query for role owners
+### Query for role grantees
 
 ```ruby
-resource.owners_of_role(:manager)
-resource.indirect_owners_of_role(:read)
+resource.grantees_of_role(:manager)
+resource.indirect_grantees_of_role(:read)
 ```
 
 

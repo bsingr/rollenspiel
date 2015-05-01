@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Rollenspiel
-  class RoleOwnerPerformanceTest < ActiveSupport::TestCase
+  class RoleGranteePerformanceTest < ActiveSupport::TestCase
      test "#role_in?" do
       n = 100
 

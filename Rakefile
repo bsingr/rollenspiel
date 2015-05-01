@@ -46,7 +46,7 @@ task :bench do
 
   Benchmark.bm do |x|
     x.report "Plain" do
-      s = Rollenspiel::RoleScope::RoleStructure.new.tap do |builder|
+      s = Rollenspiel::RoleProvider::RoleStructure.new.tap do |builder|
         n.times do |i|
           builder.roles "foo#{i}", "bar#{i}", "baz#{i}"
           builder.roles "bat#{i}", "bo#{i}"
@@ -55,7 +55,7 @@ task :bench do
       s.layout
     end
     x.report "Inherits" do
-      s = Rollenspiel::RoleScope::RoleStructure.new.tap do |builder|
+      s = Rollenspiel::RoleProvider::RoleStructure.new.tap do |builder|
         n.times do |i|
           builder.roles "foo#{i}", inherits: ["bar#{i}", "baz#{i}"]
           builder.roles "faa#{i}", inherits: ["bar#{i}", "bat#{i}"]

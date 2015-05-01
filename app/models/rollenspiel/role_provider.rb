@@ -1,9 +1,9 @@
 module Rollenspiel
-  module RoleScope
+  module RoleProvider
     extend ActiveSupport::Concern
 
-    def self.registered_scopes
-      @registered_scopes ||= []
+    def self.registered_providers
+      @registered_providers ||= []
     end
 
     class_methods do
@@ -15,12 +15,12 @@ module Rollenspiel
     included do
       class_attribute :roles_structure
 
-      RoleScope.registered_scopes << name
+      RoleProvider.registered_providers << name
 
-      scope :by_role_owner, ->(role_owner, role_name=nil) {
-        ownerships = Rollenspiel::RoleOwnership.where(owner: role_owner)
+      scope :by_role_grantee, ->(role_grantee, role_name=nil) {
+        grants = Rollenspiel::RoleGrant.where(grantee: role_grantee)
 
-        roles = Rollenspiel::Role.where({scope_type: name, id: ownerships.select(:role_id)})
+        roles = Rollenspiel::Role.where({provider_type: name, id: grants.select(:role_id)})
 
         if role_name
           inheritances = RoleInheritance.where(inherited_role: Rollenspiel::Role.where(name: role_name))
@@ -29,11 +29,11 @@ module Rollenspiel
               .or(Rollenspiel::Role.arel_table[:id].in(Arel::Nodes::SqlLiteral.new(inheritances.select(:role_id).to_sql)))
           )
         end
-        where(id: roles.select(:scope_id))
+        where(id: roles.select(:provider_id))
       }
 
-      has_many :roles, as: :scope,
-                       inverse_of: :scope,
+      has_many :roles, as: :provider,
+                       inverse_of: :provider,
                        dependent: :destroy,
                        class_name: 'Rollenspiel::Role'
       after_create :create_roles_structure
@@ -45,28 +45,28 @@ module Rollenspiel
       end
 
       # @param [#to_s] role_name
-      # @return [Array<Rollenspiel::RoleOwner>] role_owners
-      def owners_of_role role_name
-        owners_by_roles roles.where(name: role_name)
+      # @return [Array<Rollenspiel::RoleGrantee>] role_grantees
+      def grantees_of_role role_name
+        grantees_by_roles roles.where(name: role_name)
       end
 
       # @param [#to_s] role_name
-      # @return [Array<Rollenspiel::RoleOwner>] role_owners
-      def indirect_owners_of_role role_name
+      # @return [Array<Rollenspiel::RoleGrantee>] role_grantees
+      def indirect_grantees_of_role role_name
         inheritances = RoleInheritance.where(inherited_role: roles.where(name: role_name))
-        owners_by_roles inheritances.select(:role_id)
+        grantees_by_roles inheritances.select(:role_id)
       end
 
-      def owners_of_any_role
-        owners_by_roles roles
+      def grantees_of_any_role
+        grantees_by_roles roles
       end
 
       private
 
-        def owners_by_roles roles
-          ownerships = RoleOwnership.where(role: roles)
-          RoleOwner.registered_owners.map do |owner_model|
-            owner_model.constantize.by_ownerships(ownerships)
+        def grantees_by_roles roles
+          grants = RoleGrant.where(role: roles)
+          RoleGrantee.registered_grantees.map do |grantee_model|
+            grantee_model.constantize.by_grants(grants)
           end.flatten
         end
     end

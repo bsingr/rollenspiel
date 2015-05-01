@@ -6,24 +6,24 @@ Role A
 Role A inherits Role A1
 Role A inherits Role B
 
-Role A scoped by A
-Role A1 scoped by A
-Role B scoped by B
+Role A provided by A
+Role A1 provided by A
+Role B provided by B
 
-Scope A
-Scope B
+Provider A
+Provider B
 
 Owner A owns Role A
 Owner B owns Role B
 
 ## Queries
 
-Scope A owned by Owner A
-Scope A owned by Owner A via Role A
-Scope A owned by Owner A via Role A1 inherited by Role A
+Provider A owned by Owner A
+Provider A owned by Owner A via Role A
+Provider A owned by Owner A via Role A1 inherited by Role A
 
-Scope B owned by Owner A
-Scope B owned by Owner A via Role B inherited by Role A
+Provider B owned by Owner A
+Provider B owned by Owner A via Role B inherited by Role A
 
-Scope B owned by Owner B
-Scope B owned by Owner B via Role B
+Provider B owned by Owner B
+Provider B owned by Owner B via Role B
