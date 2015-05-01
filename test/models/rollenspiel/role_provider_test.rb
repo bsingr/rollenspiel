@@ -129,5 +129,11 @@ module Rollenspiel
       assert_not o.role(:member).inherited?(d.role(:update))
       assert_not o.role(:member).inherited?(d.role(:destroy))
     end
+
+    test "creates class roles" do
+      TestOrganization # this is necessary in test mode to initialize all classes
+      assert Role.find_by_name_and_provider_type(:supervision, TestOrganization.name)
+      assert_not Role.find_by_name_and_provider_type(:supervision, TestDepartment.name)
+    end
   end
 end

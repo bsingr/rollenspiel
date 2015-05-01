@@ -7,13 +7,23 @@ module Rollenspiel
     end
 
     class_methods do
-      def define_roles &block
-        self.roles_structure = block
+      def create_roles_structure record=nil
+        structure = RoleStructure.new
+        role_builder = nil
+        if record
+          instance_roles_structure.call(structure, record)
+          role_builder = RoleBuilder::InstanceRoleBuilder.new(record)
+        else
+          class_roles_structure.call(structure)
+          role_builder = RoleBuilder::ClassRoleBuilder.new(name)
+        end
+        RoleBuilder.new(structure, role_builder).create
       end
     end
 
     included do
-      class_attribute :roles_structure
+      class_attribute :class_roles_structure
+      class_attribute :instance_roles_structure
 
       RoleProvider.registered_providers << name
 
@@ -72,9 +82,7 @@ module Rollenspiel
     end
 
     def create_roles_structure
-      structure = RoleStructure.new
-      self.class.roles_structure.call(structure, self)
-      RoleBuilder.new(structure).create(self)
+      self.class.create_roles_structure(self)
     end
   end
 end
