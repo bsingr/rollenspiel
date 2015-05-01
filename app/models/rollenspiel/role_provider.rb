@@ -18,10 +18,6 @@ module Rollenspiel
           role_builder = RoleBuilder::ClassRoleBuilder.new(name)
         end
         RoleBuilder.new(structure, role_builder).create
-
-        structure.layout[:callbacks][:on_grant].map do |role_or_name, callback|
-          Rollenspiel::RoleGrant.register_callback callback
-        end
       end
 
       def role role_name

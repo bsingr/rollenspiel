@@ -4,7 +4,6 @@ module Rollenspiel
       def initialize
         @roles = []
         @inheritances = {}
-        @callbacks = {on_grant: {}}
       end
 
       def roles *roles_with_options
@@ -20,19 +19,13 @@ module Rollenspiel
             @inheritances[role] = inherits
           end
         end
-        if on_grant = options[:on_grant]
-          roles.each do |role|
-            @callbacks[:on_grant][role] = RoleCallback.new(on_grant)
-          end
-        end
       end
       alias :role :roles
 
       def layout
         {
           inheritances: @inheritances,
-          roles: @roles,
-          callbacks: @callbacks
+          roles: @roles
         }
       end
     end

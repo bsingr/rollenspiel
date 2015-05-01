@@ -53,10 +53,6 @@ module Rollenspiel
             end
           end
         end
-        @structure.layout[:callbacks][:on_grant].each do |role_or_name, role_callback|
-          role = roles_by_key[role_or_name]
-          role_callback.scope_to_role(role)
-        end
         roles_by_key
       end
 
