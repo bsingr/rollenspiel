@@ -19,6 +19,10 @@ module Rollenspiel
         end
         RoleBuilder.new(structure, role_builder).create
       end
+
+      def role role_name
+        Rollenspiel::Role.find_by_name_and_provider_type(role_name, name)
+      end
     end
 
     included do

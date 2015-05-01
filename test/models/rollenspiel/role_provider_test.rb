@@ -131,9 +131,10 @@ module Rollenspiel
     end
 
     test "creates class roles" do
-      TestOrganization # this is necessary in test mode to initialize all classes
-      assert Role.find_by_name_and_provider_type(:supervision, TestOrganization.name)
-      assert_not Role.find_by_name_and_provider_type(:supervision, TestDepartment.name)
+      TestOrganization.create_roles_structure # this is necessary in test mode when roles get dropped
+
+      assert TestOrganization.role(:supervision)
+      assert_not TestDepartment.role(:supervision)
     end
   end
 end
