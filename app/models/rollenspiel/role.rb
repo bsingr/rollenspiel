@@ -1,79 +1,82 @@
 module Rollenspiel
-  class Role < ActiveRecord::Base
-    scope :by_provider_type, ->(provider_type) { where(provider_type: provider_type) }
+  class Role
+    def initialize options={}
+      @options = options || {}
+    end
 
-    belongs_to :provider, polymorphic: true
+    def name
+      @options[:name]
+    end
 
-    has_many :role_inheritances, dependent: :destroy,
-                                 inverse_of: :role
-    has_many :inherited_roles, through: :role_inheritances
+    def grantee
+      @options[:grantee]
+    end
 
-    has_many :inherited_in_role_inheritances, inverse_of: :role,
-                                              class_name: 'RoleInheritance',
-                                              foreign_key: :inherited_role_id,
-                                              dependent: :destroy
-    has_many :inherited_to_roles, through: :inherited_in_role_inheritances,
-                                  source: :inherited_role
+    def grantee_type
+      @options[:grantee_type] || @options[:grantee].try(:class).try(:name)
+    end
 
-    has_many :role_grants, inverse_of: :role
-    has_many :grantees,
-             through: :role_grants
+    def provider
+      @options[:provider]
+    end
 
-    validates_presence_of :name
-    validates_uniqueness_of :name, scope: [:provider_id, :provider_type]
-    validates_inclusion_of :provider_type, in: RoleProvider.registered_providers,
-                                        allow_nil: true
+    def provider_type
+      @options[:provider_type] || @options[:provider].try(:class).try(:name)
+    end
 
-    # @param [#to_id, #to_s] role_or_name
-    # @return [TrueClass, FalseClass] true if the given role is inherited
-    def inherited? role_or_name
-      if role_or_name.respond_to?(:id)
-        inherited_roles.where(id: role_or_name.id).exists?
+    def grant! grantee
+      conditions = persisted_role_conditions.merge(grantee: grantee)
+      PersistedRole.find_or_initialize_by(conditions).save!
+    end
+
+    def granted?
+      PersistedRole.where(persisted_role_conditions).exists?
+    end
+
+    def all
+      PersistedRole.where(persisted_role_conditions)
+    end
+
+    def grantees
+      persisted_roles = PersistedRole.where(persisted_role_conditions)
+      if grantee_type
+        grantee_type.constantize.where(id: persisted_roles.select(:grantee_id))
       else
-        inherited_roles.where(name: role_or_name).exists?
+        RoleGrantee.registered_grantees.map do |model|
+          model.constantize.where(id: persisted_roles.where(grantee_type: model).select(:grantee_id))
+        end.flatten
       end
     end
 
-    # Builds role grant for the given grantee
-    # @param [Rollenspiel::RoleGrantee] role_grantee becomes grantee of this role
-    # @return [Rollenspiel::RoleGrant] role_grant
-    def grant_to role_grantee
-      role_grants.build grantee: role_grantee
+    def providers
+      persisted_roles = PersistedRole.where(persisted_role_conditions)
+      if provider_type
+        provider_type.constantize.where(id: persisted_roles.select(:provider_id))
+      else
+        RoleProvider.registered_providers.map do |model|
+          model.constantize.where(id: persisted_roles.where(provider_type: model).select(:provider_id))
+        end.flatten
+      end
     end
 
-    # Creates a role grant for the given grantee
-    # @param [Rollenspiel::RoleGrantee] role_grantee
-    def grant_to! role_grantee
-      o = grant_to(role_grantee)
-      o.save!
-      o
-    end
-
-    # Builds inheritance for the given role
-    # @param [Rollenspiel::Role] role
-    # @return [Rollenspiel::RoleInheritance] role_inheritance
-    def inherit role
-      raise ArgumentError, "Role(#{inspect})#inherit requires role" unless role
-      role_inheritances.find_or_initialize_by inherited_role: role
-    end
-
-    # Creates inheritance for the given role
-    # @param [Rollenspiel::Role] role
-    # @return [Rollenspiel::RoleInheritance] role_inheritance
-    def inherit! role
-      inherit(role).save!
-    end
-
-    # Destroys inheritance for the given role
-    # @param [Rollenspiel::Role] role
-    # @return [Rollenspiel::RoleInheritance] role_inheritance
-    def disinherit! role
-      raise ArgumentError, "Role(#{inspect})#inherit requires role" unless role
-      role_inheritances.find_by(inherited_role: role).destroy!
+    def persisted_role_conditions
+      conditions = {}
+      conditions[:name] = name if name
+      if grantee
+        conditions[:grantee] = grantee
+      elsif grantee_type
+        conditions[:grantee_type] = grantee_type
+      end
+      if provider
+        conditions[:provider] = provider
+      elsif provider_type
+        conditions[:provider_type] = provider_type
+      end
+      conditions
     end
 
     def to_s
-      "#{self.class}(#{name}, #{provider_type})"
+      "#{self.class}(#{@options.inspect})"
     end
   end
 end

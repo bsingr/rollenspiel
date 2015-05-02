@@ -1,0 +1,17 @@
+roles:
+  - school(id).director
+  - school(id).teacher
+  - school(id).pupil
+  - school_class(id).teacher
+  - school_class(id).pupil
+  - school_class(id).create
+  - school_class(id).update
+  - school_class(id).delete
+  - person(id).create
+  - person(id).update
+  - person(id).delete
+  - person(id).get_grade
+  - person(id).set_grade
+grantees:
+  - person
+

@@ -2,39 +2,37 @@ require 'test_helper'
 
 module Rollenspiel
   class RoleTest < ActiveSupport::TestCase
-    test "creates and inherits" do
-      r = Role.create! name: 'manager'
-      r.inherit! Role.new(name: 'read')
+    test "finds role grantees of different type" do
+      g1 = TestUser.create!
+      g2 = TestAnimal.create!
 
-      assert r.inherited? 'read'
-      assert_not r.inherited? 'foo'
+      foo = Role.new(name: :foo)
+      foo.grant!(g1)
+      foo.grant!(g2)
 
-      assert_not r.provider
+      bar = Role.new(name: :bar)
+      bar.grant!(g1)
+
+      assert_equal g1, foo.grantees[0]
+      assert_equal g2, foo.grantees[1]
+      assert_equal g1, bar.grantees[0]
+      assert_equal nil, bar.grantees[1]
     end
 
-    test "knows its provider" do
-      o = TestOrganization.create!
-      assert o.role(:read).provider
-    end
+    test "finds role providers of different type" do
+      p1 = TestOrganization.create!
+      p2 = TestDepartment.create!
 
-    test "destroys when inherited to role is destroyed" do
-      r1 = Role.create! name: "one"
-      r2 = Role.create!(name: "two")
-      r1.inherit! r2
+      foo = Role.new(name: :foo, provider: p1)
+      foo.grant!(TestUser.create!)
 
-      assert_difference("RoleInheritance.count", -1) do
-        r1.destroy!
-      end
-    end
+      bar = Role.new(name: :foo, provider: p2)
+      bar.grant!(TestUser.create!)
 
-    test "destroys when inherited from role is destroyed" do
-      r1 = Role.create! name: "one"
-      r2 = Role.create!(name: "two")
-      r1.inherit! r2
-
-      assert_difference("RoleInheritance.count", -1) do
-        r2.destroy!
-      end
+      assert_equal p1, foo.providers[0]
+      assert_equal nil, foo.providers[1]
+      assert_equal p2, bar.providers[0]
+      assert_equal nil, bar.providers[1]
     end
   end
 end

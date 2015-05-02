@@ -29,12 +29,6 @@ And install the migrations
 
 For some examples please have a look into [test/dummy/app/models](test/dummy/app/models).
 
-### Create roles
-
-```ruby
-manager_role = Role.create name: :manager
-```
-
 ### Define role grantees
 
 ```ruby
@@ -48,52 +42,25 @@ end
 
 ```ruby
 user = YourUser.create
-manager_role.grant_to! user
+Role.new(name: :manager).grant! user
 ```
 
 ### Query if a role grantee has a role
 
 ```ruby
-user.role?(manager_role)    # true
 user.role?(:manager)        # true
 user.role?(:does_not_exist) # false
 ```
 
-### Inherit roles
-
-```ruby
-read_role = Role.create name: :read
-manager_role.inherit! read_role
-
-user.role?(read_role) # true
-```
-
-### Define a provider for roles
+### Define providers for roles
 
 ```ruby
 class YourResource < ActiveRecord::Base
+  role_provider
+end
 
-  # this makes your resource class a provider of roles
-  provides_roles do |p|
-    p.role :dealer
-  end
-
-  # alternatively OR additionaly use this to provide roles on instance level
-  # here you can define default roles that get automatically created
-  # whenever a new instance of your resource is created
-  provides_instance_roles do |p, record|
-    # this is a simple read role
-    p.role :use
-
-    # you can add multiple roles at once
-    p.role :use, :sell
-
-    # and you can group roles together (single level inheritance)
-    p.role :grantee, inherits: [:use, :sell]
-
-    # you can even re-use existing roles to inherit new roles
-    p.role manager_role, inherits: [:use, :sell]
-  end
+class YourOtherResource < ActiveRecord::Base
+  role_provider
 end
 ```
 
@@ -102,10 +69,11 @@ end
 On class level
 
 ```ruby
-YourResource.role(:dealer).grant_to! user
+YourResource.role(:dealer).grant! user
 
-user.role?(:dealer)               # true
-user.role?(:dealer, YourResource) # true
+user.role?(:dealer)                    # true
+user.role?(:dealer, YourResource)      # true
+user.role?(:dealer, YourOtherResource) # false
 ```
 
 On instance level
@@ -114,23 +82,34 @@ On instance level
 car = YourResource.create name: "Car"
 bike = YourResource.create name: "Bike"
 
-car.role(:grantee).grant_to! user
-bike.role(:use).grant_to! user
+car.role(:grantee).grant! user
+bike.role(:use).grant! user
 
-user.role?(car.role(:grantee))    # true
-user.role?(car.role(:use))        # true
-user.role?(bike.role(:grantee))   # false
-user.role?(bike.role(:use))       # true
-user.role?(:sell)                 # true
-user.role?(:sell, YourResource)   # true
-user.role?(:sell, YourUser)       # false
+user.role?(car.role(:grantee))       # true
+user.role?(car.role(:use))           # true
+user.role?(bike.role(:grantee))      # false
+user.role?(bike.role(:use))          # true
+user.role?(:sell)                    # true
+user.role?(:sell, YourResource)      # true
+user.role?(:sell, YourOtherResource) # false
 ```
 
-### Query for role grantees
+### Queries
+
+List providers of role
 
 ```ruby
-resource.grantees_of_role(:manager)
-resource.indirect_grantees_of_role(:read)
+YourResource.by_role(name: :sell)
+YourResource.by_role(grantee: user)
+YourResource.by_role(name: :sell, :grantee: user)
+```
+
+List grantees of role
+
+```ruby
+User.by_role(name: :sell)
+User.by_role(provider: car)
+User.by_role(name: :sell, provider: car)
 ```
 
 
