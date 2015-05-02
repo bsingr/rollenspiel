@@ -6,10 +6,9 @@ rvm:
   - 2.2.0
   - ruby-head
 env:
-  - DB=sqlite
-  - DB=mysql
-  - DB=postgresql
-  - BENCHMARK=1
+  - DB=sqlite BENCHMARK=1
+  - DB=mysql BENCHMARK=1
+  - DB=postgresql BENCHMARK=1
 script:
   - cd test
   - RAILS_ENV=test bundle exec rake db:migrate --trace

@@ -22,7 +22,7 @@ module Rollenspiel
         end
       end
 
-      expected_max_time = 0.05
+      expected_max_time = 0.1
 
       assert time < expected_max_time, "expected #{time} < #{expected_max_time}"
     end
