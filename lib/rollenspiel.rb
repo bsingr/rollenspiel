@@ -11,6 +11,10 @@ module Rollenspiel
     def role_provider
       self.send(:include, Rollenspiel::RoleProvider)
     end
+
+    def implicit_role options
+      ImplicitRole.register(options)
+    end
   end
 end
 
