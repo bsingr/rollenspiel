@@ -27,7 +27,6 @@ module Rollenspiel
     def grant! grantee
       conditions = persisted_role_conditions.merge(grantee: grantee)
       PersistedRole.find_or_initialize_by(conditions).save!
-      self
     end
 
     def granted?
